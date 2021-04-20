@@ -24,7 +24,7 @@ from sklearn.feature_selection import SelectKBest, RFE, f_regression
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, QuantileTransformer, PowerTransformer, RobustScaler, MinMaxScaler
 
-# In[3]:
+############################################################################################################################################################################
 
 
 def get_city_climate_data():
@@ -49,7 +49,7 @@ def get_global_temps_climate_data():
     df= pd.read_csv('GlobalTemperatures.csv', index_col=0)
     return df
 
-
+############################################################################################################################################################################
 def prep_houston():
     '''This function aquires the data frame from the get_city_climate_data and then filters for the city of Houston in the USA. It then returns a dataframe of the climate data for Houston.'''
     #importing the city climate data
@@ -60,11 +60,11 @@ def prep_houston():
     df['dt'] = pd.to_datetime(df.dt, format='%Y-%m-%d')
     #set date time back to index
     df = df.set_index('dt').sort_index()
-    #Drop city, state, latitude and longitude since the data has been filtered for houston
-    df.drop(columns={'State', 'City', 'Latitude', 'Longitude'}, inplace=True)
+    #Drop city, latitude and longitude since the data has been filtered for houston
+    df.drop(columns={'Country', 'City', 'Latitude', 'Longitude'}, inplace=True)
     return df
-# In[ ]:
-def numeric_hists(df, bins=20):
+############################################################################################################################################################################
+def numeric_hist_maker(df, bins=20):
     """
     Function to take in a DataFrame, bins default 20,
     select only numeric dtypes, and
@@ -75,7 +75,16 @@ def numeric_hists(df, bins=20):
     num_df.hist(bins=bins, color='palevioletred', ec='mediumvioletred')
     plt.tight_layout()
     plt.show()
-
+############################################################################################################################################################################
+def split_houston_data():
+    '''This function uses the prepped data and splits up the df into train, validate, test by using a percentage of the data. When using percentage based, use the last 20% as test'''
+    df= prep_houston()
+    train_size = .70
+    n = df.shape[0]
+    test_start_index = round(train_size * n)
+    train = df[:test_start_index] # everything up (not including) to the test_start_index
+    test = df[test_start_index:] # everything from the test_start_index to the end
+    return train, test
 
 
 
