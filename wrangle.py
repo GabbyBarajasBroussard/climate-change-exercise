@@ -29,7 +29,7 @@ from sklearn.preprocessing import StandardScaler, QuantileTransformer, PowerTran
 
 def get_city_climate_data():
     '''This function reads in the csv, drops the unnamed column and returns as a dataframe.'''
-    df= pd.read_csv('GlobalLandTemperaturesByCity.csv', index_col=0)
+    df= pd.read_csv('GlobalLandTemperaturesByCity.csv')
     return df
 
 def get_country_climate_data():
@@ -56,6 +56,12 @@ def prep_houston():
     og_df= get_city_climate_data()
     #making a new dataframe for the city of houston based on the original climate data
     df= og_df[((og_df['Country'] == 'United States') & (og_df["City"] == 'Houston'))]
+    #Set dt to be datetime format
+    df['dt'] = pd.to_datetime(df.dt, format='%Y-%m-%d')
+    #set date time back to index
+    df = df.set_index('dt').sort_index()
+    #Drop city, state, latitude and longitude since the data has been filtered for houston
+    df.drop(columns={'State', 'City', 'Latitude', 'Longitude'}, inplace=True)
     return df
 # In[ ]:
 def numeric_hists(df, bins=20):
