@@ -62,7 +62,6 @@ def prep_houston():
     df = df.set_index('dt').sort_index()
     #Drop city, latitude and longitude since the data has been filtered for houston
     df.drop(columns={'Country', 'City', 'Latitude', 'Longitude'}, inplace=True)
-    reset_index().set_index('dt')
     return df
 ############################################################################################################################################################################
 def numeric_hist_maker(df, bins=20):
@@ -92,8 +91,14 @@ def split_houston_data():
     
     return train, validate, test
 
+###############
+def make_predictions():
+    avg_temp = train['AverageTemperature'][-1:][0]
+    avg_temp_unc = train['AverageTemperatureUncertainty'][-1:][0]
 
-
+    yhat_df = pd.DataFrame({'AverageTemperature': [avg_temp], 'AverageTemperatureUncertainty': [avg_temp_unc]}, 
+                       index = validate.index)
+    return yhat_df
 ###########################################################################################################################################################################    
 def evaluate(target_var):
     '''evaluate() will compute the Mean Squared Error and the Rood Mean Squared Error to evaluate.'''
@@ -103,6 +108,7 @@ def evaluate(target_var):
 def plot_and_eval(target_var):
     '''plot_and_eval() will use the evaluate function and also plot train and test values with the predicted values in order to compare performance.'''
     train, validate, test = split_houston_data()
+    yhat_df
     plt.figure(figsize = (12,4))
     plt.plot(train[target_var], label = 'Train', linewidth = 1)
     plt.plot(validate[target_var], label = 'Validate', linewidth = 1)
