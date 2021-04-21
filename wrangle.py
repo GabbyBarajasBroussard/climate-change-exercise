@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 plt.rc('figure', figsize=(13, 9))
 plt.rc('font', size=13)
 from datetime import timedelta, datetime as dt
-
+from math import sqrt
 from sklearn.preprocessing import StandardScaler, QuantileTransformer, PowerTransformer, RobustScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -93,6 +93,7 @@ def split_houston_data():
 
 ###############
 def make_predictions():
+    train, validate, test = split_houston_data()
     avg_temp = train['AverageTemperature'][-1:][0]
     avg_temp_unc = train['AverageTemperatureUncertainty'][-1:][0]
 
@@ -108,7 +109,7 @@ def evaluate(target_var):
 def plot_and_eval(target_var):
     '''plot_and_eval() will use the evaluate function and also plot train and test values with the predicted values in order to compare performance.'''
     train, validate, test = split_houston_data()
-    yhat_df
+    yhat_df= make_predictions()
     plt.figure(figsize = (12,4))
     plt.plot(train[target_var], label = 'Train', linewidth = 1)
     plt.plot(validate[target_var], label = 'Validate', linewidth = 1)
