@@ -62,6 +62,7 @@ def prep_houston():
     df = df.set_index('dt').sort_index()
     #Drop city, latitude and longitude since the data has been filtered for houston
     df.drop(columns={'Country', 'City', 'Latitude', 'Longitude'}, inplace=True)
+    reset_index().set_index('dt')
     return df
 ############################################################################################################################################################################
 def numeric_hist_maker(df, bins=20):
@@ -79,12 +80,46 @@ def numeric_hist_maker(df, bins=20):
 def split_houston_data():
     '''This function uses the prepped data and splits up the df into train, validate, test by using a percentage of the data. When using percentage based, use the last 20% as test'''
     df= prep_houston()
-    train_size = .70
-    n = df.shape[0]
-    test_start_index = round(train_size * n)
-    train = df[:test_start_index] # everything up (not including) to the test_start_index
-    test = df[test_start_index:] # everything from the test_start_index to the end
-    return train, test
+    train_size = int(len(df) * .5)
+    validate_size = int(len(df) * .3)
+    test_size = int(len(df) - train_size - validate_size)
+    validate_end_index = train_size + validate_size
+
+    # split into train, validation, test
+    train = df[: train_size]
+    validate = df[train_size : validate_end_index]
+    test = df[validate_end_index : ]
+    
+    return train, validate, test
 
 
 
+###########################################################################################################################################################################    
+def evaluate(target_var):
+    '''evaluate() will compute the Mean Squared Error and the Rood Mean Squared Error to evaluate.'''
+    rmse = round(sqrt(mean_squared_error(validate[target_var], yhat_df[target_var])), 0)
+    return rmse
+###########################################################################################################################################################################
+def plot_and_eval(target_var):
+    '''plot_and_eval() will use the evaluate function and also plot train and test values with the predicted values in order to compare performance.'''
+    train, validate, test = split_houston_data()
+    plt.figure(figsize = (12,4))
+    plt.plot(train[target_var], label = 'Train', linewidth = 1)
+    plt.plot(validate[target_var], label = 'Validate', linewidth = 1)
+    plt.plot(yhat_df[target_var])
+    plt.title(target_var)
+    rmse = evaluate(target_var)
+    print(target_var, '-- RMSE: {:.0f}'.format(rmse))
+    plt.show()
+    
+########################################################################################################################################################################### 
+    
+# Create the empty dataframe
+eval_df = pd.DataFrame(columns=['model_type', 'target_var', 'rmse'])
+
+# function to store rmse for comparison purposes
+def append_eval_df(model_type, target_var):
+    rmse = evaluate(target_var)
+    d = {'model_type': [model_type], 'target_var': [target_var], 'rmse': [rmse]}
+    d = pd.DataFrame(d)
+    return eval_df.append(d, ignore_index = True)
